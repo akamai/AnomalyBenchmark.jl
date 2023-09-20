@@ -1,4 +1,5 @@
-# AnomalyBenchmark.jl: Julia implementation of Numenta Anomaly Benchmark for Evaluating Algorithms for Streaming Anomaly Detection
+# AnomalyBenchmark.jl:
+## Julia implementation of Numenta Anomaly Benchmark for Evaluating Algorithms for Streaming Anomaly Detection
 
 This is a Julia implementation of [Numenta's NAB Python package for Anomaly Benchmarking](https://github.com/numenta/NAB).
 The code is written from the ground up in Julia following the specifications of NAB.
