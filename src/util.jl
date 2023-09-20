@@ -93,7 +93,7 @@ julia> anomalousWindows = [(DateTime(2017, 1, 3, 10, 1), DateTime(2017, 1, 3, 10
 2-element Array{Tuple{DateTime,DateTime},1}:
  (2017-01-03T10:01:00,2017-01-03T10:05:00)
  (2017-01-03T10:58:00,2017-01-03T11:00:00)
-julia> convertAnomalousWindowsToTimestamps(anomalousWindows)
+julia> NAB.convertAnomalousWindowsToTimestamps(anomalousWindows)
 8-element Array{DateTime,1}:
  2017-01-03T10:01:00
  2017-01-03T10:02:00
@@ -105,10 +105,10 @@ julia> convertAnomalousWindowsToTimestamps(anomalousWindows)
  2017-01-03T11:00:00
 ```
 """
-function convertAnomalousWindowsToTimestamps(anomalousWindows::AbstractVector{Tuple{T,T}}) where {T<:TimeType}
+function convertAnomalousWindowsToTimestamps(anomalousWindows::Vector{Tuple{T,T}}) where {T<:TimeType}
     trueAnomalies = missings(DateTime, 0)
     for window in anomalousWindows
-        startTime, endTime = DateTime.(window...)
+        startTime, endTime = DateTime(window[1]), DateTime(window[2])
         append!(trueAnomalies, collect(startTime:Dates.Minute(1):endTime))
     end
     return trueAnomalies

@@ -37,7 +37,15 @@ function testWindows()
     @test_logs (:info,"The first window overlaps with the probationary period, so we're deleting it.") labeler.getWindows()
 end
 
+function testConvertAnomalousWindows()
+    anomalousWindows = [(DateTime(2017, 1, 3, 10, 1), DateTime(2017, 1, 3, 10, 5)), (DateTime(2017, 1, 3, 10, 58), DateTime(2017, 1, 3, 11, 0))]
+    expanded = NAB.convertAnomalousWindowsToTimestamps(anomalousWindows)
+
+    @test collect(DateTime("2017-01-03T10:01:00"):Minute(1):DateTime("2017-01-03T10:05:00")) ∪ [ DateTime("2017-01-03T10:58:00") DateTime("2017-01-03T10:59:00") DateTime("2017-01-03T11:00:00") ] == expanded
+end
+
 @testset "Labler test" begin
     testsetLabels()
     testWindows()
+    testConvertAnomalousWindows()
 end
