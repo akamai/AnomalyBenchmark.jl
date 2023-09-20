@@ -11,7 +11,7 @@ This is a Julia implementation of [Numenta's NAB Python package for Anomaly Benc
 The code is written from the ground up in Julia following the specifications of NAB.
 """
 module NAB
-using DataFrames, Dates
+using DataFrames, Dates, JSON
 
 include("labeler.jl")
 include("util.jl")

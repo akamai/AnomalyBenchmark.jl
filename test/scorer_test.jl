@@ -133,6 +133,9 @@ function testScoringAllMetrics()
 
     @test score ≈ -0.9540 rtol=1e-4
     checkCounts(scorer.counts, len-windowSize*numWindows-1, 2, 1, 8)
+
+    @test 2 == length(scorer.windows)
+    @test startswith(scorer.windows[1].repr(), "WINDOW id=1, limits: [$(scorer.windows[1].t1), $(scorer.windows[1].t2)], length: 5\nwindow data:\n5×4 DataFrame")
 end
 
 function testScoreDataSet()
@@ -150,7 +153,20 @@ function testScoreDataSet()
     threshold = 0.75
 
 
-    NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
+    ds = NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
+    @test "customized" == ds["profileName"]
+    @test Dict("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2) == ds["counts"]
+    @test -1.0 == ds["score"]
+    @test detectorName == ds["detectorName"]
+
+    ds = NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, profileName = "standard")
+    @test "standard" == ds["profileName"]
+    @test Dict("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2) == ds["counts"]
+    @test 0.78 == ds["score"]
+    @test detectorName == ds["detectorName"]
+
+    @test_throws ErrorException NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix = Dict("tpWeight" => 1.0))
+    @test_throws ErrorException NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, profileName = "foo")
 end
 
 

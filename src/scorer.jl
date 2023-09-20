@@ -34,7 +34,7 @@ Immutable object to store a single window in a data. Each window represents a ra
 
 #### Functions
 
-`__repr__::Function`
+`repr::Function`
 :    String representation of `Window`. For debugging.
 
 `getFirstTruePositive::Function`
@@ -80,7 +80,7 @@ struct Window
     indices::AbstractArray
     len::Int
 
-    __repr__::Function
+    repr::Function
     getFirstTruePositive::Function
 
     function Window(windowId::Int, limits::Tuple{DateTime, DateTime}, data::DataFrame)
@@ -92,7 +92,7 @@ struct Window
         self = new(
                 windowId, t1, t2, window, indices, len,
 
-                () -> __repr__(self),
+                () -> repr(self),
                 () -> getFirstTruePositive(self)
             )
         return self
@@ -116,7 +116,7 @@ data = DataFrame(
     timestamp = DateTime(2017, 1, 1):DateTime(2017, 1, 5)
 )
 window = Window(1234, (DateTime(2017, 1, 1), DateTime(2017, 1, 2)), data)
-window.__repr__()
+window.repr()
 WINDOW id=1234, limits: [2017-01-01T00:00:00, 2017-01-02T00:00:00], length: 2
 window data:
 2×2 DataFrames.DataFrame
@@ -126,13 +126,7 @@ window data:
 │ 2   │ 2     │ 2017-01-02T00:00:00 │
 ```
 """
-function Base.show(io::IO, window::Window)
-    s = "WINDOW id=" * string(window.id)
-    s *= ", limits: [" * string(window.t1) * ", " * string(window.t2) * "]"
-    s *= ", length: " * string(window.len)
-    s *= "\nwindow data:\n" * string(window.window)
-    print(io, s)
-end
+Base.show(io::IO, window::Window) = print(io, "WINDOW id=$(window.id), limits: [$(window.t1), $(window.t2)], length: $(window.len)\nwindow data:\n" * string(window.window))
 
 
 
@@ -216,10 +210,10 @@ Object to score a data.
 `len::Int`
 :    The total count of predictions.
 
-`windows::AbstractArray{Window, 1}`
+`windows::Vector{Window}`
 :    The list of windows for the data.
 
-`windowLimits::AbstractArray{Tuple{DateTime,DateTime},1}`
+`windowLimits::Vector{Tuple{DateTime,DateTime}}`
 :    All the window limits in tuple
     form: (start time, end time).
 
@@ -245,30 +239,30 @@ Object to score a data.
 
 ```julia
 Scorer(
-        timestamps::AbstractArray{DateTime, 1},
-        predictions::AbstractArray{Int, 1},
-        labels::AbstractArray{Int, 1},
-        windowLimits::AbstractArray{Tuple{DateTime,DateTime},1},
-        costMatrix::Dict{AbstractString, Float64},
+        timestamps::Vector{DateTime},
+        predictions::AbstractVector{<:Integer},
+        labels::AbstractVector{<:Integer},
+        windowLimits::Vector{Tuple{DateTime,DateTime}},
+        costMatrix::Dict{<:AbstractString, Float64},
         probationaryPeriod::Int
     )
 ```
 
 #### Arguments
 
-`timestamps::AbstractArray{DateTime, 1}`
+`timestamps::Vector{DateTime}`
 :    Timestamps in the data.
 
-`predictions::AbstractArray{Int, 1}`
+`predictions::AbstractVector{<:Integer}`
 :    Detector predictions of whether each record is anomalous or not.
     `predictions[1:probationaryPeriod-1]` are ignored.
 
-`labels::AbstractArray{Int, 1}`
+`labels::AbstractVector{Integer}`
 :    Ground truth for each record.
     For each record there should be a 1 or a 0.
     A 1 implies this record is within an anomalous window.
 
-`windowLimits::AbstractArray{Tuple{DateTime,DateTime},1}`
+`windowLimits::Vector{Tuple{DateTime,DateTime}}`
 :    All the window limits in tuple
     form: (start time, end time).
 
@@ -316,14 +310,14 @@ Dict{AbstractString,Int64}("tp"=>1,"tn"=>3,"fn"=>0,"fp"=>1),0.0,5,[NAB.Window(1,
 mutable struct Scorer
     data::DataFrame
     probationaryPeriod::Int
-    costMatrix::Dict{AbstractString, Float64}
+    costMatrix::Dict{<:AbstractString, Float64}
     totalCount::Int
-    counts::Dict{AbstractString, Int}
+    counts::Dict{<:AbstractString, Int}
     score::Float64
     normalizedScore::Float64
     len::Int
-    windows::AbstractArray{Window, 1}
-    windowLimits::AbstractArray{Tuple{DateTime,DateTime},1}
+    windows::Vector{Window}
+    windowLimits::Vector{Tuple{DateTime,DateTime}}
 
     getWindows::Function
     getAlertTypes::Function
@@ -336,7 +330,7 @@ mutable struct Scorer
         predictions::Vector{<:Integer},
         labels::Vector{<:Integer},
         windowLimits::Vector{<:Union{Missing, Tuple{DateTime,DateTime}}},
-        costMatrix::Dict{AbstractString, Float64},
+        costMatrix::Dict{<:AbstractString, Float64},
         probationaryPeriod::Int
     )
         data = DataFrame()
@@ -384,7 +378,7 @@ Create list of windows for the data
 
 `scorer::Scorer`
 
-`limits::AbstractArray{Tuple{DateTime,DateTime},1}`
+`limits::Vector{Tuple{DateTime,DateTime}}`
 :    All the window limits in tuple
     form: (start time, end time).
 
@@ -429,7 +423,7 @@ Create list of windows for the data
 
 `scorer::Scorer`
 
-`limits::AbstractArray{Tuple{DateTime,DateTime},1}`
+`limits::Vector{Tuple{DateTime,DateTime}}`
 :    All the window limits in tuple
     form: (start time, end time).
 
@@ -460,7 +454,7 @@ julia> scorer.getAlertTypes(predictions)
  "fp"
 ```
 """
-function getAlertTypes(scorer::Scorer, predictions::AbstractArray{Int, 1})
+function getAlertTypes(scorer::Scorer, predictions::AbstractVector{<:Integer})
     types = AbstractString[]
     for i in 1:nrow(scorer.data)
         row = DataFrameRow(scorer.data, i)
@@ -502,7 +496,7 @@ below, and uncomment the replacement lines to calculate `thisTP` and `thisFP`.
 
 `Tuple`
 
-`scores::AbstractArray{Float64, 1}`
+`scores::AbstractVector{Float64}`
 :    The score at each timestamp of the data.
 
 `scorer.score::Float64`
@@ -711,10 +705,10 @@ Compute NAB scores given a detector's results, actual anomalies and a cost matri
 `data::DataFrame`
 :    The whole data set with default columns `timestamp`.
 
-`trueAnomalies::AbstractArray{DateTime, 1}`
+`trueAnomalies::Vector{DateTime}`
 :    Timestamps of the ground truth anomalies.
 
-`predictions::AbstractArray{Int, 1}`
+`predictions::AbstractVector{<:Integer}`
 :    Detector predictions of whether each record is anomalous or not.
     `predictions[1:probationaryPeriod-1]` are ignored.
 
@@ -773,8 +767,8 @@ profileName = "standard"
 julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, profileName=profileName)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
-  "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>0)
-  "score"        => 1.0
+  "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2)
+  "score"        => 0.78
   "profileName"  => "standard"
   "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
 
@@ -792,8 +786,8 @@ costMatrix = Dict{AbstractString, Float64}("tpWeight" => 1.0, "fpWeight" => 1.0,
 julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, costMatrix=costMatrix)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
-  "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>0)
-  "score"        => 1.0
+  "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>2)
+  "score"        => -1.0
   "profileName"  => "customized"
   "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
 
@@ -813,11 +807,11 @@ Dict{ASCIIString,Any} with 5 entries:
 function scoreDataSet(
     labeler::Labeler,
     data::DataFrame,
-    trueAnomalies::AbstractArray{DateTime, 1},
-    predictions::AbstractArray{Int, 1};
+    trueAnomalies::Vector{DateTime},
+    predictions::AbstractVector{<:Integer};
     detectorName::AbstractString                = "%",
     profileName::AbstractString                 = "standard",
-    costMatrix::Dict{AbstractString, Float64}   = Dict{AbstractString, Float64}()
+    costMatrix::Dict{<:AbstractString, Float64} = Dict{AbstractString, Float64}()
 )
     labeler.setData(data)
     labeler.setLabels(trueAnomalies)
@@ -831,7 +825,7 @@ function scoreDataSet(
         try
             costMatrix = convert(Dict{AbstractString, Float64}, profiles[profileName]["CostMatrix"])
         catch
-            error("profileName does not exist the `profiles.json`")
+            error("profileName does not exist in `profiles.json`")
         end
     else
         if !(["fnWeight", "fpWeight", "tpWeight"] ⊆ collect(keys(costMatrix)))
@@ -863,12 +857,12 @@ end
 scoreDataSet(
     labeler::Labeler,
     data::DataFrame,
-    trueAnomalies::AbstractArray{DateTime, 1},
+    trueAnomalies::Vector{DateTime},
     anomalyScores::AbstractArray{Float64},
     threshold::Float64;
     detectorName::AbstractString                = "%",
     profileName::AbstractString                 = "standard",
-    costMatrix::Dict{AbstractString, Float64}   = Dict{AbstractString, Float64}()
+    costMatrix::Dict{<:AbstractString, Float64} = Dict{AbstractString, Float64}()
 ) = scoreDataSet(
     labeler,
     data,
@@ -915,7 +909,7 @@ Running score normalization step
 ```
 """
 function normalizeScore(scorer::Scorer)
-    @info("\nRunning score normalization step\n")
+    @info("Running score normalization step")
 
     # null/baseline detector (which makes no detections)
     baseline = Scorer(scorer.data[:timestamp], zeros(Int, scorer.len), scorer.data[:label],
