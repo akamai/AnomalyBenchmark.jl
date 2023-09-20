@@ -28,10 +28,10 @@ Return the probationary period index given probation percentage and the length o
 #### Examples
 
 ```julia
-julia> NAB.getProbationPeriod(0.2, 4000)
+julia> AnomalyBenchmark.getProbationPeriod(0.2, 4000)
 800
 
-julia> NAB.getProbationPeriod(0.2, 10000)
+julia> AnomalyBenchmark.getProbationPeriod(0.2, 10000)
 1000
 ```
 """
@@ -93,7 +93,7 @@ julia> anomalousWindows = [(DateTime(2017, 1, 3, 10, 1), DateTime(2017, 1, 3, 10
 2-element Array{Tuple{DateTime,DateTime},1}:
  (2017-01-03T10:01:00,2017-01-03T10:05:00)
  (2017-01-03T10:58:00,2017-01-03T11:00:00)
-julia> NAB.convertAnomalousWindowsToTimestamps(anomalousWindows)
+julia> AnomalyBenchmark.convertAnomalousWindowsToTimestamps(anomalousWindows)
 8-element Array{DateTime,1}:
  2017-01-03T10:01:00
  2017-01-03T10:02:00

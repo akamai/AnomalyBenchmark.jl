@@ -1,4 +1,4 @@
-name = "NAB"
+name = "AnomalyBenchmark"
 uuid = "13f62802-72e9-43db-893e-f77429f524ed"
 authors = ["Akamai mPulse DSWB Team <dswb@akamai.com>"]
 version = "0.1.0"

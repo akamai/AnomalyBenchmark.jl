@@ -1,4 +1,4 @@
-The NAB.jl package is licensed under the MIT "Expat" License:
+The AnomalyBenchmark.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2023: Akamai.
 >

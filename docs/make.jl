@@ -1,13 +1,13 @@
-using Documenter, NAB
+using Documenter, AnomalyBenchmark
 
 makedocs(
-    sitename="NAB.jl Documentation",
+    sitename="AnomalyBenchmark.jl Documentation",
     format=Documenter.HTML(
         prettyurls = false,
         edit_link="main",
     ),
-    modules=[NAB],
+    modules=[AnomalyBenchmark],
     pages = ["index.md"],
 )
 
-deploydocs(repo = "github.com/akamai/NAB.jl.git")
+deploydocs(repo = "github.com/akamai/AnomalyBenchmark.jl.git")

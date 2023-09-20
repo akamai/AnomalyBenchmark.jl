@@ -73,7 +73,7 @@ function Labeler(windowSize::Float64, probationaryPercent::Float64)
 
 ```julia
 Labeler(0.1, 0.15)
-NAB.Labeler(0×0 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(0×0 DataFrames.DataFrame
 ,0.1,0.15,0×0 DataFrames.DataFrame
 ,Int64[],Tuple{DateTime,DateTime}[],(anonymous function),(anonymous function),(anonymous function),(anonymous function),(anonymous function))
 
@@ -136,7 +136,7 @@ data = DataFrame(
 
 labeler.setData(data)
 julia> labeler
-NAB.Labeler(5×2 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(5×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │
@@ -181,7 +181,7 @@ labeler.setData(data)
 labeler.setLabels(trueAnomalies)
 
 julia> labeler
-NAB.Labeler(5×2 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(5×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │
@@ -233,7 +233,7 @@ labeler.setLabels(trueAnomalies)
 labeler.getWindows()
 
 julia> labeler
-NAB.Labeler(5×2 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(5×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │
@@ -280,7 +280,7 @@ labeler.setLabels(trueAnomalies)
 labeler.applyWindows()
 
 julia> labeler
-NAB.Labeler(5×2 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(5×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │
@@ -345,7 +345,7 @@ labeler.applyWindows()
 labeler.checkWindows()
 
 julia> labeler
-NAB.Labeler(5×2 DataFrames.DataFrame
+AnomalyBenchmark.Labeler(5×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │

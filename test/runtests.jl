@@ -1,4 +1,4 @@
-using NAB
+import AnomalyBenchmark as NAB
 using DataFrames, Statistics, Dates, Test
 
 include("test_helpers.jl")

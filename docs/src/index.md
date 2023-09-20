@@ -1,18 +1,18 @@
-# NAB.jl Documentation
+# AnomalyBenchmark.jl Documentation
 
 ```@docs
-NAB
+AnomalyBenchmark
 ```
 
 ## Types
 ```@autodocs
-Modules=[NAB]
+Modules=[AnomalyBenchmark]
 Order=[:type]
 ```
 
 ## Methods
 ```@autodocs
-Modules=[NAB]
+Modules=[AnomalyBenchmark]
 Order=[:function]
 ```
 

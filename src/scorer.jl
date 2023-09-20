@@ -4,7 +4,7 @@
 #
 # File: scorer.jl
 #
-# Contains Scoring Function for NAB scores
+# Contains Scoring Function for AnomalyBenchmark scores
 #
 ###################################################
 
@@ -65,7 +65,7 @@ data = DataFrame(
     timestamp = DateTime(2017, 1, 1):DateTime(2017, 1, 5)
 )
 window = Window(1234, (DateTime(2017, 1, 1), DateTime(2017, 1, 2)), data)
-NAB.Window(1234,2017-01-01T00:00:00,2017-01-02T00:00:00,2×2 DataFrames.DataFrame
+AnomalyBenchmark.Window(1234,2017-01-01T00:00:00,2017-01-02T00:00:00,2×2 DataFrames.DataFrame
 │ Row │ index │ timestamp           │
 ├─────┼───────┼─────────────────────┤
 │ 1   │ 1     │ 2017-01-01T00:00:00 │
@@ -291,7 +291,7 @@ costMatrix = Dict{AbstractString, Float64}(
             )
 probationaryPeriod = 1
 scorer = Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
-NAB.Scorer(5×4 DataFrames.DataFrame
+AnomalyBenchmark.Scorer(5×4 DataFrames.DataFrame
 │ Row │ timestamp           │ label │ index │ alerttype │
 ├─────┼─────────────────────┼───────┼───────┼───────────┤
 │ 1   │ 2017-01-01T00:00:00 │ 0     │ 1     │ "tn"      │
@@ -299,7 +299,7 @@ NAB.Scorer(5×4 DataFrames.DataFrame
 │ 3   │ 2017-01-03T00:00:00 │ 0     │ 3     │ "tn"      │
 │ 4   │ 2017-01-04T00:00:00 │ 0     │ 4     │ "tn"      │
 │ 5   │ 2017-01-05T00:00:00 │ 0     │ 5     │ "fp"      │,1,Dict(:tpWeight=>1.0,:fnWeight=>1.0,:fpWeight=>1.0),5,
-Dict{AbstractString,Int64}("tp"=>1,"tn"=>3,"fn"=>0,"fp"=>1),0.0,5,[NAB.Window(1,2017-01-02T00:00:00,2017-01-03T00:00:00,2×4 DataFrames.DataFrame
+Dict{AbstractString,Int64}("tp"=>1,"tn"=>3,"fn"=>0,"fp"=>1),0.0,5,[AnomalyBenchmark.Window(1,2017-01-02T00:00:00,2017-01-03T00:00:00,2×4 DataFrames.DataFrame
 │ Row │ timestamp           │ label │ index │ alerttype │
 ├─────┼─────────────────────┼───────┼───────┼───────────┤
 │ 1   │ 2017-01-02T00:00:00 │ 1     │ 2     │ "tp"      │
@@ -401,8 +401,8 @@ costMatrix = Dict{AbstractString, Float64}(
 probationaryPeriod = 1
 scorer = Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
 scorer.getWindows(windowLimits)
-1-element Array{NAB.Window,1}:
- NAB.Window(1,2017-01-02T00:00:00,2017-01-03T00:00:00,2×4 DataFrames.DataFrame
+1-element Array{AnomalyBenchmark.Window,1}:
+ AnomalyBenchmark.Window(1,2017-01-02T00:00:00,2017-01-03T00:00:00,2×4 DataFrames.DataFrame
 │ Row │ timestamp           │ label │ index │ alerttype │
 ├─────┼─────────────────────┼───────┼───────┼───────────┤
 │ 1   │ 2017-01-02T00:00:00 │ 1     │ 2     │ "tp"      │
@@ -669,16 +669,16 @@ right  edge of the  window and corresponds to a score of `2*sigmoid(-5) - 1.0 =
 #### Examples
 
 ```julia
-julia> NAB.scaledSigmoid(-1.0)
+julia> AnomalyBenchmark.scaledSigmoid(-1.0)
 0.9866142981514305
 
-julia> NAB.scaledSigmoid(-0.5)
+julia> AnomalyBenchmark.scaledSigmoid(-0.5)
 0.8482836399575131
 
-julia> NAB.scaledSigmoid(0.0)
+julia> AnomalyBenchmark.scaledSigmoid(0.0)
 0.0
 
-julia> NAB.scaledSigmoid(1.0)
+julia> AnomalyBenchmark.scaledSigmoid(1.0)
 -0.9866142981514303
 
 ```
@@ -695,7 +695,7 @@ end
 
 
 """
-Compute NAB scores given a detector's results, actual anomalies and a cost matrix.
+Compute AnomalyBenchmark scores given a detector's results, actual anomalies and a cost matrix.
 
 #### Arguments
 
@@ -753,7 +753,7 @@ with the following keys:
 #### Examples
 
 ```julia
-labeler = NAB.Labeler(0.1, 0.15)
+labeler = AnomalyBenchmark.Labeler(0.1, 0.15)
 data = DataFrame(
     index = 1:5,
     timestamp = DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5)
@@ -764,15 +764,15 @@ predictions = [0, 1, 0, 0, 0]
 detectorName = "tester"
 profileName = "standard"
 
-julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, profileName=profileName)
+julia> AnomalyBenchmark.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, profileName=profileName)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2)
   "score"        => 0.78
   "profileName"  => "standard"
-  "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
+  "scorer"       => AnomalyBenchmark.Scorer(5×4 DataFrames.DataFrame…
 
-labeler = NAB.Labeler(0.1, 0.15)
+labeler = AnomalyBenchmark.Labeler(0.1, 0.15)
 data = DataFrame(
     index = 1:5,
     timestamp = DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5)
@@ -783,25 +783,25 @@ predictions = [0, 1, 0, 0, 0]
 detectorName = "tester"
 costMatrix = Dict{AbstractString, Float64}("tpWeight" => 1.0, "fpWeight" => 1.0, "fnWeight" => 1.0)
 
-julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, costMatrix=costMatrix)
+julia> AnomalyBenchmark.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, costMatrix=costMatrix)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>2)
   "score"        => -1.0
   "profileName"  => "customized"
-  "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
+  "scorer"       => AnomalyBenchmark.Scorer(5×4 DataFrames.DataFrame…
 
 
 anomalyScores = [0.7, 0.8, 0.5, 0.8, 0.9]
 threshold = 0.75
 
-julia> NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
+julia> AnomalyBenchmark.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2)
   "score"        => -1.0
   "profileName"  => "customized"
-  "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
+  "scorer"       => AnomalyBenchmark.Scorer(5×4 DataFrames.DataFrame…
 ```
 """
 function scoreDataSet(
@@ -897,7 +897,7 @@ costMatrix = Dict{AbstractString, Float64}(
                 "fpWeight" => 1.0
             )
 probationaryPeriod = 1
-scorer = NAB.Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
+scorer = AnomalyBenchmark.Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
 
 julia> scorer.getScore()
 ([0.0,1.0,0.0,0.0,-0.9999092042625951],9.079573740489177e-5)

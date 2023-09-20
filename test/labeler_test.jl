@@ -1,5 +1,3 @@
-using NAB
-
 function getLabler(windowSize::Float64, probationaryPercent::Float64)
     labeler = NAB.Labeler(windowSize, probationaryPercent)
     data    = DataFrame(
