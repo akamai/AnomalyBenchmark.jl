@@ -169,6 +169,25 @@ function testScoreDataSet()
     @test_throws ErrorException NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, profileName = "foo")
 end
 
+function testNormalizeScore()
+    timestamps = collect(DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5))
+    predictions = [0, 1, 0, 0, 1]
+    labels         = [0, 1, 0, 0, 0]
+    windowLimits = [(DateTime(2017, 1, 2), DateTime(2017, 1, 3))]
+    costMatrix = Dict{AbstractString, Float64}(
+                "tpWeight" => 1.0,
+                "fnWeight" => 1.0,
+                "fpWeight" => 1.0
+            )
+    probationaryPeriod = 1
+    scorer = NAB.Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
+
+    scorer.getScore()
+
+    scorer.normalizeScore()
+
+    @test 50.00454 == round(scorer.normalizedScore, digits=5)
+end
 
 """Ensure the metric counts are correct."""
 function checkCounts(counts, tn, tp, fp, fn)
@@ -186,4 +205,5 @@ end
     testRewardLowFalsePositives()
     testScoringAllMetrics()
     testScoreDataSet()
+    testNormalizeScore()
 end

@@ -887,7 +887,7 @@ where the perfect score is the number of TPs possible.
 `scorer::Scorer`
 
 ```julia
-timestamps = collect(DateTime(2017, 1, 1):DateTime(2017, 1, 5))
+timestamps = collect(DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5))
 predictions = [0, 1, 0, 0, 1]
 labels         = [0, 1, 0, 0, 0]
 windowLimits = [(DateTime(2017, 1, 2), DateTime(2017, 1, 3))]
@@ -897,7 +897,7 @@ costMatrix = Dict{AbstractString, Float64}(
                 "fpWeight" => 1.0
             )
 probationaryPeriod = 1
-scorer = Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
+scorer = NAB.Scorer(timestamps, predictions, labels, windowLimits, costMatrix, probationaryPeriod)
 
 julia> scorer.getScore()
 ([0.0,1.0,0.0,0.0,-0.9999092042625951],9.079573740489177e-5)
@@ -912,8 +912,14 @@ function normalizeScore(scorer::Scorer)
     @info("Running score normalization step")
 
     # null/baseline detector (which makes no detections)
-    baseline = Scorer(scorer.data[:timestamp], zeros(Int, scorer.len), scorer.data[:label],
-        scorer.windowLimits, scorer.costMatrix, scorer.probationaryPeriod)
+    baseline = Scorer(
+                    scorer.data.timestamp,
+                    zeros(Int, scorer.len),
+                    scorer.data.label,
+                    scorer.windowLimits,
+                    scorer.costMatrix,
+                    scorer.probationaryPeriod
+                )
     baseline.getScore()
     # the perfect score is the number of TPs possible
     tpCount = scorer.counts["tp"] + scorer.counts["fn"]
