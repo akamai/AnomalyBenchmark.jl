@@ -10,4 +10,4 @@ makedocs(
     pages = ["index.md"],
 )
 
-#deploydocs(repo = "github.com/akamai/NAB.jl.git")
+deploydocs(repo = "github.com/akamai/NAB.jl.git")
