@@ -135,6 +135,25 @@ function testScoringAllMetrics()
     checkCounts(scorer.counts, len-windowSize*numWindows-1, 2, 1, 8)
 end
 
+function testScoreDataSet()
+    labeler = NAB.Labeler(0.1, 0.15)
+    data = DataFrame(
+        index = 1:5,
+        timestamp = DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5)
+    )
+    trueAnomalies = [DateTime(2017, 1, 2)]
+
+    detectorName = "tester"
+    costMatrix = Dict{AbstractString, Float64}("tpWeight" => 1.0, "fpWeight" => 1.0, "fnWeight" => 1.0)
+
+    anomalyScores = [0.7, 0.8, 0.5, 0.8, 0.9]
+    threshold = 0.75
+
+
+    NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
+end
+
+
 """Ensure the metric counts are correct."""
 function checkCounts(counts, tn, tp, fp, fn)
   @test counts["tn"] == tn
@@ -144,11 +163,11 @@ function checkCounts(counts, tn, tp, fp, fn)
 end
 
 
-
 @testset "Scorer test" begin
     testNullCase()
     testFalsePositiveScaling()
     testRewardLowFalseNegatives()
     testRewardLowFalsePositives()
     testScoringAllMetrics()
+    testScoreDataSet()
 end

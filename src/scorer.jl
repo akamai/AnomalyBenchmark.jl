@@ -313,7 +313,7 @@ Dict{AbstractString,Int64}("tp"=>1,"tn"=>3,"fn"=>0,"fp"=>1),0.0,5,[NAB.Window(1,
 
 ```
 """
-mutable struct  Scorer
+mutable struct Scorer
     data::DataFrame
     probationaryPeriod::Int
     costMatrix::Dict{AbstractString, Float64}
@@ -332,10 +332,10 @@ mutable struct  Scorer
     normalizeScore::Function
 
     function Scorer(
-        timestamps::AbstractArray{DateTime, 1},
-        predictions::AbstractArray{Int, 1},
-        labels::AbstractArray{Int, 1},
-        windowLimits::AbstractArray{Union{Missing, Tuple{DateTime,DateTime}},1},
+        timestamps::Vector{DateTime},
+        predictions::Vector{<:Integer},
+        labels::Vector{<:Integer},
+        windowLimits::Vector{<:Union{Missing, Tuple{DateTime,DateTime}}},
         costMatrix::Dict{AbstractString, Float64},
         probationaryPeriod::Int
     )
@@ -415,7 +415,7 @@ scorer.getWindows(windowLimits)
 │ 2   │ 2017-01-03T00:00:00 │ 0     │ 3     │ "tn"      │,[2,3],2,(anonymous function),(anonymous function))
 ```
 """
-function getWindows(scorer::Scorer, limits::AbstractArray{Union{Missing, Tuple{DateTime,DateTime}},1})
+function getWindows(scorer::Scorer, limits::Vector{<:Union{Missing, Tuple{DateTime,DateTime}}})
     windows = [Window(i, limit, scorer.data) for (i, limit) in enumerate(limits)]
     return windows
 end
@@ -759,10 +759,10 @@ with the following keys:
 #### Examples
 
 ```julia
-labeler = Labeler(0.1, 0.15)
+labeler = NAB.Labeler(0.1, 0.15)
 data = DataFrame(
     index = 1:5,
-    timestamp = DateTime(2017, 1, 1):DateTime(2017, 1, 5)
+    timestamp = DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5)
 )
 trueAnomalies = [DateTime(2017, 1, 2)]
 predictions = [0, 1, 0, 0, 0]
@@ -770,7 +770,7 @@ predictions = [0, 1, 0, 0, 0]
 detectorName = "tester"
 profileName = "standard"
 
-julia> scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, profileName=profileName)
+julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, profileName=profileName)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>0)
@@ -778,10 +778,10 @@ Dict{ASCIIString,Any} with 5 entries:
   "profileName"  => "standard"
   "scorer"       => NAB.Scorer(5×4 DataFrames.DataFrame…
 
-labeler = Labeler(0.1, 0.15)
+labeler = NAB.Labeler(0.1, 0.15)
 data = DataFrame(
     index = 1:5,
-    timestamp = DateTime(2017, 1, 1):DateTime(2017, 1, 5)
+    timestamp = DateTime(2017, 1, 1):Day(1):DateTime(2017, 1, 5)
 )
 trueAnomalies = [DateTime(2017, 1, 2)]
 predictions = [0, 1, 0, 0, 0]
@@ -789,7 +789,7 @@ predictions = [0, 1, 0, 0, 0]
 detectorName = "tester"
 costMatrix = Dict{AbstractString, Float64}("tpWeight" => 1.0, "fpWeight" => 1.0, "fnWeight" => 1.0)
 
-julia> scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, costMatrix=costMatrix)
+julia> NAB.scoreDataSet(labeler, data, trueAnomalies, predictions, detectorName=detectorName, costMatrix=costMatrix)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>4,"fn"=>0,"fp"=>0)
@@ -801,7 +801,7 @@ Dict{ASCIIString,Any} with 5 entries:
 anomalyScores = [0.7, 0.8, 0.5, 0.8, 0.9]
 threshold = 0.75
 
-julia> scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
+julia> NAB.scoreDataSet(labeler, data, trueAnomalies, anomalyScores, threshold, detectorName=detectorName, costMatrix=costMatrix)
 Dict{ASCIIString,Any} with 5 entries:
   "detectorName" => "tester"
   "counts"       => Dict{AbstractString,Int64}("tp"=>1,"tn"=>2,"fn"=>0,"fp"=>2)
@@ -834,7 +834,7 @@ function scoreDataSet(
             error("profileName does not exist the `profiles.json`")
         end
     else
-        if ["fnWeight", "fpWeight", "tpWeight"] ⊆ collect(keys(costMatrix))
+        if !(["fnWeight", "fpWeight", "tpWeight"] ⊆ collect(keys(costMatrix)))
             error("Please provide `fnWeight`, `fpWeight`, `tpWeight` in your costMatrix.
                 Otherwise, provide the profileName to obtain a costMatrix.")
         end
@@ -842,9 +842,9 @@ function scoreDataSet(
     end
 
     scorer = Scorer(
-        data[:timestamp],
+        data.timestamp,
         predictions,
-        labeler.labels[:label],
+        labeler.labels.label,
         labeler.windows,
         costMatrix,
         probationaryPeriod
@@ -870,9 +870,13 @@ scoreDataSet(
     profileName::AbstractString                 = "standard",
     costMatrix::Dict{AbstractString, Float64}   = Dict{AbstractString, Float64}()
 ) = scoreDataSet(
-    labeler, data, trueAnomalies,
-    convertAnomalyScoresToDetections(anomalyScores, threshold),
-    detectorName=detectorName, profileName=profileName, costMatrix=costMatrix
+    labeler,
+    data,
+    trueAnomalies,
+    convertAnomalyScoresToDetections(anomalyScores, threshold);
+    detectorName = detectorName,
+    profileName  = profileName,
+    costMatrix   = costMatrix
 )
 
 
